@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { getMeals, saveMeal, deleteMeal, getTargets, saveTargets, today, generateId } from "@/lib/storage";
 import type { MealEntry, Targets } from "@/lib/types";
-import { Plus, Trash2, Settings, X, ChevronDown, ChevronUp } from "lucide-react";
+import { MEAL_PRESETS } from "@/lib/types";
+import { Plus, Trash2, Settings, X, ChevronDown, ChevronUp, Zap } from "lucide-react";
 import RingProgress from "@/components/RingProgress";
 
 const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"] as const;
@@ -63,6 +64,21 @@ export default function MealsPage() {
 
   function handleDelete(id: string) {
     deleteMeal(id);
+    setMeals(getMeals());
+  }
+
+  function handleQuickAdd(preset: typeof MEAL_PRESETS[number]) {
+    const meal: MealEntry = {
+      id: generateId(),
+      date: selectedDate,
+      mealType: preset.mealType,
+      name: preset.name,
+      calories: preset.calories,
+      protein: preset.protein,
+      carbs: preset.carbs,
+      fat: preset.fat,
+    };
+    saveMeal(meal);
     setMeals(getMeals());
   }
 
@@ -130,6 +146,45 @@ export default function MealsPage() {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Quick Add from Plan */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <Zap size={14} className="text-(--color-accent)" />
+          <p className="text-xs text-neutral-500 uppercase tracking-wider">My Meal Plan</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {MEAL_PRESETS.map((preset) => {
+            const color = MEAL_COLORS[preset.mealType];
+            const alreadyLogged = dayMeals.some((m) => m.name === preset.name);
+            return (
+              <button
+                key={preset.name}
+                onClick={() => !alreadyLogged && handleQuickAdd(preset)}
+                disabled={alreadyLogged}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-left border transition-colors ${
+                  alreadyLogged
+                    ? "border-(--color-border) opacity-40 cursor-default"
+                    : "border-(--color-border) hover:border-neutral-600 bg-(--color-surface)"
+                }`}
+              >
+                <div className="w-1.5 h-8 rounded-full flex-shrink-0" style={{ background: color }} />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium flex items-center gap-2">
+                    {preset.name}
+                    {alreadyLogged && <span className="text-xs text-(--color-accent) font-normal">✓ logged</span>}
+                  </div>
+                  <div className="text-xs text-neutral-600 truncate">{preset.description}</div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-xs font-bold text-neutral-300">{preset.calories} kcal</div>
+                  <div className="text-xs text-neutral-600">{preset.protein}g P</div>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
