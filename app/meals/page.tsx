@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getMeals, saveMeal, deleteMeal, getTargets, saveTargets, today, generateId } from "@/lib/storage";
 import type { MealEntry, Targets } from "@/lib/types";
 import { MEAL_PRESETS } from "@/lib/types";
-import { Plus, Trash2, Settings, X, ChevronDown, ChevronUp, Zap } from "lucide-react";
+import { Plus, Trash2, Settings, X, ChevronDown, ChevronUp, Zap, Sparkles, Loader2 } from "lucide-react";
 import RingProgress from "@/components/RingProgress";
 
 const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"] as const;
@@ -15,8 +15,8 @@ const MEAL_COLORS: Record<string, string> = {
   snack: "#a3ff47",
 };
 
-function empty(): { name: string; calories: string; protein: string; carbs: string; fat: string; mealType: MealEntry["mealType"] } {
-  return { name: "", calories: "", protein: "", carbs: "", fat: "", mealType: "breakfast" };
+function empty(): { name: string; description: string; calories: string; protein: string; carbs: string; fat: string; mealType: MealEntry["mealType"] } {
+  return { name: "", description: "", calories: "", protein: "", carbs: "", fat: "", mealType: "breakfast" };
 }
 
 export default function MealsPage() {
@@ -28,6 +28,7 @@ export default function MealsPage() {
   const [targetForm, setTargetForm] = useState({ calories: "", protein: "", carbs: "", fat: "" });
   const [selectedDate, setSelectedDate] = useState(today());
   const [expandedMeal, setExpandedMeal] = useState<string | null>(null);
+  const [calculating, setCalculating] = useState(false);
 
   useEffect(() => {
     setMeals(getMeals());
@@ -45,13 +46,13 @@ export default function MealsPage() {
   }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
 
   function handleAdd() {
-    if (!form.name || !form.calories) return;
+    if (!form.name && !form.description) return;
     const meal: MealEntry = {
       id: generateId(),
       date: selectedDate,
       mealType: form.mealType,
-      name: form.name,
-      calories: Number(form.calories),
+      name: form.name || form.description,
+      calories: Number(form.calories) || 0,
       protein: Number(form.protein) || 0,
       carbs: Number(form.carbs) || 0,
       fat: Number(form.fat) || 0,
@@ -80,6 +81,31 @@ export default function MealsPage() {
     };
     saveMeal(meal);
     setMeals(getMeals());
+  }
+
+  async function handleCalculateMacros() {
+    if (!form.description.trim()) return;
+    setCalculating(true);
+    try {
+      const res = await fetch("/api/parse-meal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: form.description }),
+      });
+      if (res.ok) {
+        const macros = await res.json();
+        setForm((f) => ({
+          ...f,
+          calories: macros.calories ? String(macros.calories) : f.calories,
+          protein: macros.protein ? String(macros.protein) : f.protein,
+          carbs: macros.carbs ? String(macros.carbs) : f.carbs,
+          fat: macros.fat ? String(macros.fat) : f.fat,
+          name: f.name || f.description,
+        }));
+      }
+    } finally {
+      setCalculating(false);
+    }
   }
 
   function handleSaveTargets() {
@@ -279,13 +305,30 @@ export default function MealsPage() {
               </div>
               <input
                 className="w-full bg-(--color-surface-2) border border-(--color-border-2) rounded-xl px-3 py-2.5 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-(--color-accent) transition-colors"
-                placeholder="Meal name *"
+                placeholder="Meal name (optional)"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
+              <div className="relative">
+                <textarea
+                  className="w-full bg-(--color-surface-2) border border-(--color-border-2) rounded-xl px-3 py-2.5 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-(--color-accent) transition-colors resize-none pr-10"
+                  placeholder="Describe the meal (e.g. 2 eggs, sourdough toast, butter)…"
+                  rows={2}
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                />
+                <button
+                  onClick={handleCalculateMacros}
+                  disabled={calculating || !form.description.trim()}
+                  title="Calculate macros with AI"
+                  className="absolute right-2 top-2 p-1.5 rounded-lg bg-(--color-accent) text-black disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+                >
+                  {calculating ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                </button>
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { key: "calories", label: "Calories (kcal) *" },
+                  { key: "calories", label: "Calories (kcal)" },
                   { key: "protein", label: "Protein (g)" },
                   { key: "carbs", label: "Carbs (g)" },
                   { key: "fat", label: "Fat (g)" },
@@ -300,10 +343,15 @@ export default function MealsPage() {
                   />
                 ))}
               </div>
+              {calculating && (
+                <p className="text-xs text-neutral-500 flex items-center gap-1.5">
+                  <Loader2 size={10} className="animate-spin" /> Estimating macros…
+                </p>
+              )}
             </div>
             <div className="flex gap-3 mt-5">
               <button onClick={() => setShowForm(false)} className="flex-1 py-2.5 rounded-xl border border-(--color-border) text-neutral-400 text-sm hover:text-white transition-colors">Cancel</button>
-              <button onClick={handleAdd} className="flex-1 py-2.5 rounded-xl bg-(--color-accent) text-black font-bold text-sm hover:opacity-90">Add</button>
+              <button onClick={handleAdd} disabled={!form.name && !form.description} className="flex-1 py-2.5 rounded-xl bg-(--color-accent) text-black font-bold text-sm hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed">Add</button>
             </div>
           </div>
         </div>
