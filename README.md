@@ -1,6 +1,6 @@
 # Hybrid Tracker
 
-I train like a hybrid athlete. Push/pull/legs in the gym, two runs a week, and the occasional Hyrox session. I also try to eat well and stay at a consistent weight. The problem was never motivation. The problem was that tracking all of it felt like a second job.
+I train like a hybrid athlete. Push/pull/legs in the gym, two runs a week, and the occasional Hyrox session. I recently completed a 20km run and I'm now building toward competing in a Hyrox race at the start of 2027. I also try to eat well and stay at a consistent weight. The problem was never motivation. The problem was that tracking all of it felt like a second job.
 
 And I know I'm not the only one.
 
@@ -35,12 +35,14 @@ npm install
 npm run dev
 ```
 
-Add an `ANTHROPIC_API_KEY` environment variable for the AI macro estimation to work:
-
-```
-ANTHROPIC_API_KEY=sk-ant-...
-```
-
 ## Why I built it myself
 
-Every fitness app I tried was either too generic, too complicated, or trying to sell me a subscription. I wanted something that matched exactly how I train and eat, no more, no less. Building it took a few hours. Now I actually use it every day.
+Every fitness app I tried was either too generic, too complicated, or trying to sell me a subscription to unlock the features that actually mattered.
+
+MyFitnessPal is fine if all you care about is food. Strava is great if you only run. Strong works well for the gym. But none of them talk to each other, and none of them were built for someone doing all three. I'd finish a solid training week, feel like I was on track, and have absolutely no way to verify it because my data was scattered across four different places.
+
+What made it worse is that the window for training is small. Between work, studying, commuting, and trying to have a life, you get maybe an hour a day. The last thing you want to spend that time on is manually reconciling apps or trying to remember if you hit your protein yesterday. The friction of tracking was quietly killing the habit.
+
+I also found that most apps are built for people who just want to lose weight or run their first 5k. Nothing wrong with that. But when you're chasing a Hyrox finish line while also trying to get stronger and stay lean, you need something that understands the full picture. The strength sessions, the long runs, the macro precision, the weight trend over time. All of it matters and all of it is connected.
+
+So I stopped looking for the right app and built exactly what I needed. It took a few hours. It has no ads, no premium tier, no algorithm trying to keep me engaged. It just tracks what I care about and tells me at the end of each day whether I showed up or not. That's all I ever wanted.
