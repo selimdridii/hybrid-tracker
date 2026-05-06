@@ -55,11 +55,21 @@ export default function Dashboard() {
 
   useEffect(() => {
     const t = today();
-    setMeals(getMealsForDate(t));
-    setWorkouts(getWorkoutsForDate(t));
-    setWeights(getWeights());
-    setTargets(getTargets());
-    setStreak(computeStreak());
+    async function load() {
+      const [meals, workouts, weights, targets, streak] = await Promise.all([
+        getMealsForDate(t),
+        getWorkoutsForDate(t),
+        getWeights(),
+        getTargets(),
+        computeStreak(),
+      ]);
+      setMeals(meals);
+      setWorkouts(workouts);
+      setWeights(weights);
+      setTargets(targets);
+      setStreak(streak);
+    }
+    load();
   }, []);
 
   if (!targets) return null;

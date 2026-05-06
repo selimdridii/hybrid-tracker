@@ -31,10 +31,13 @@ export default function MealsPage() {
   const [calculating, setCalculating] = useState(false);
 
   useEffect(() => {
-    setMeals(getMeals());
-    const t = getTargets();
-    setTargets(t);
-    setTargetForm({ calories: String(t.calories), protein: String(t.protein), carbs: String(t.carbs), fat: String(t.fat) });
+    async function load() {
+      const [meals, t] = await Promise.all([getMeals(), getTargets()]);
+      setMeals(meals);
+      setTargets(t);
+      setTargetForm({ calories: String(t.calories), protein: String(t.protein), carbs: String(t.carbs), fat: String(t.fat) });
+    }
+    load();
   }, []);
 
   const dayMeals = meals.filter((m) => m.date === selectedDate);
@@ -45,7 +48,7 @@ export default function MealsPage() {
     fat: acc.fat + m.fat,
   }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
 
-  function handleAdd() {
+  async function handleAdd() {
     if (!form.name && !form.description) return;
     const meal: MealEntry = {
       id: generateId(),
@@ -57,18 +60,18 @@ export default function MealsPage() {
       carbs: Number(form.carbs) || 0,
       fat: Number(form.fat) || 0,
     };
-    saveMeal(meal);
-    setMeals(getMeals());
+    await saveMeal(meal);
+    setMeals(await getMeals());
     setForm(empty());
     setShowForm(false);
   }
 
-  function handleDelete(id: string) {
-    deleteMeal(id);
-    setMeals(getMeals());
+  async function handleDelete(id: string) {
+    await deleteMeal(id);
+    setMeals(await getMeals());
   }
 
-  function handleQuickAdd(preset: typeof MEAL_PRESETS[number]) {
+  async function handleQuickAdd(preset: typeof MEAL_PRESETS[number]) {
     const meal: MealEntry = {
       id: generateId(),
       date: selectedDate,
@@ -79,8 +82,8 @@ export default function MealsPage() {
       carbs: preset.carbs,
       fat: preset.fat,
     };
-    saveMeal(meal);
-    setMeals(getMeals());
+    await saveMeal(meal);
+    setMeals(await getMeals());
   }
 
   async function handleCalculateMacros() {
@@ -108,7 +111,7 @@ export default function MealsPage() {
     }
   }
 
-  function handleSaveTargets() {
+  async function handleSaveTargets() {
     if (!targets) return;
     const t: Targets = {
       ...targets,
@@ -117,7 +120,7 @@ export default function MealsPage() {
       carbs: Number(targetForm.carbs),
       fat: Number(targetForm.fat),
     };
-    saveTargets(t);
+    await saveTargets(t);
     setTargets(t);
     setShowTargets(false);
   }

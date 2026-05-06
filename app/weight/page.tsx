@@ -26,11 +26,13 @@ export default function WeightPage() {
   const [weightGoalInput, setWeightGoalInput] = useState("");
 
   useEffect(() => {
-    const w = getWeights();
-    setWeights(w);
-    const t = getTargets();
-    setTargets(t);
-    setWeightGoalInput(String(t.weightGoal || ""));
+    async function load() {
+      const [w, t] = await Promise.all([getWeights(), getTargets()]);
+      setWeights(w);
+      setTargets(t);
+      setWeightGoalInput(String(t.weightGoal || ""));
+    }
+    load();
   }, []);
 
   const sorted = [...weights].sort((a, b) => a.date.localeCompare(b.date));
@@ -46,26 +48,25 @@ export default function WeightPage() {
     ? (weights.reduce((s, w) => s + w.weight, 0) / weights.length).toFixed(1)
     : null;
 
-  function handleAdd() {
+  async function handleAdd() {
     if (!inputWeight) return;
     const entry: WeightEntry = { id: generateId(), date: inputDate, weight: Number(inputWeight) };
-    saveWeight(entry);
-    const updated = getWeights();
-    setWeights(updated);
+    await saveWeight(entry);
+    setWeights(await getWeights());
     setInputWeight("");
     setInputDate(today());
     setShowForm(false);
   }
 
-  function handleDelete(id: string) {
-    deleteWeight(id);
-    setWeights(getWeights());
+  async function handleDelete(id: string) {
+    await deleteWeight(id);
+    setWeights(await getWeights());
   }
 
-  function handleSaveGoal() {
+  async function handleSaveGoal() {
     if (!targets) return;
     const t = { ...targets, weightGoal: weightGoalInput ? Number(weightGoalInput) : undefined };
-    saveTargets(t);
+    await saveTargets(t);
     setTargets(t);
     setShowTargets(false);
   }

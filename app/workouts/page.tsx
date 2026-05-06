@@ -349,19 +349,19 @@ function WorkoutsContent() {
   const [filterDate, setFilterDate] = useState(today());
 
   useEffect(() => {
-    setWorkouts(getWorkouts());
+    getWorkouts().then(setWorkouts);
   }, []);
 
-  function handleSave(session: WorkoutSession) {
-    saveWorkout(session);
-    setWorkouts(getWorkouts());
+  async function handleSave(session: WorkoutSession) {
+    await saveWorkout(session);
+    setWorkouts(await getWorkouts());
     setShowForm(false);
     setSelectedType(null);
   }
 
-  function handleDelete(id: string) {
-    deleteWorkout(id);
-    setWorkouts(getWorkouts());
+  async function handleDelete(id: string) {
+    await deleteWorkout(id);
+    setWorkouts(await getWorkouts());
   }
 
   const dayWorkouts = workouts.filter((w) => w.date === filterDate);
