@@ -4,7 +4,7 @@ I train like a hybrid athlete. Push/pull/legs in the gym, two runs a week, and t
 
 And I know I'm not the only one.
 
-There's a whole generation of people in their 20s and 30s trying to do this exact thing. Students and young professionals who work full days, hit the gym before or after, squeeze in a long run on the weekend, and are genuinely trying to build a body that performs at both strength and endurance. The hybrid athlete movement has exploded, Hyrox races are selling out across Europe, and more people than ever are following training programs that mix lifting with running.
+There's a whole generation of people in their 20s trying to do this exact thing. Students and young professionals who work full days, hit the gym before or after, squeeze in a long run on the weekend, and are genuinely trying to build a body that performs at both strength and endurance. The hybrid athlete movement has exploded, Hyrox races are selling out across Europe, and more people than ever are following training programs that mix lifting with running.
 
 But the tools haven't caught up. Every app out there is built for one thing. Runners use Garmin or Strava. Lifters use Strong or Hevy. People tracking macros use MyFitnessPal. If you do all three, you end up living across four different apps, none of them talking to each other, and none of them giving you a single clear picture of whether you're actually on track.
 
